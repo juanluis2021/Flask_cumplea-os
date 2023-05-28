@@ -1,7 +1,7 @@
 # Flask_cumplea-os
-#El método "POST" se utiliza para agregar nuevas entradas a la base de datos cuando
-##se envía un formulario, mientras que el método "GET" 
-##se utiliza para mostrar las entradas existentes en la base de datos cuando se accede a la ruta inicial.
+El método "POST" se utiliza para agregar nuevas entradas a la base de datos cuando
+se envía un formulario, mientras que el método "GET" 
+se utiliza para mostrar las entradas existentes en la base de datos cuando se accede a la ruta inicial.
 
 
 import sqlite3
