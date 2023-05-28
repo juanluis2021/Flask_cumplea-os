@@ -1,10 +1,6 @@
 # Flask_cumplea-os
 
 
-##En resumen, el método "POST" se utiliza para agregar nuevas entradas a la base de datos cuando
-##se envía un formulario, mientras que el método "GET" 
-##se utiliza para mostrar las entradas existentes en la base de datos cuando se accede a la ruta inicial.
-
 import sqlite3
 import os
 from flask import Flask, flash, jsonify, redirect, render_template, request, session
@@ -50,6 +46,38 @@ def index():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+#SQLITE3
+
+import sqlite3
+try:
+    mi_conexion = sqlite3.connect("env/birthdays/birthdays")  ##conexion a la base de datos 
+    cursor = mi_conexion.cursor()
+    cursor.execute("""CREATE TABLE birthdays (id number, name varchar(50), month number, day number)""")
+    mi_conexion  = sqlite3.connect("birthdays")
+    add_datos = [("1","alfonso","12","23")]
+    cursor.executemany("insert into birthdays values ( ?,?,?,?)",add_datos)
+    mi_conexion.commit()
+    mi_conexion.close()
+
+
+    cursor =mi_conexion.cursor()
+    cursor.execute("select * from birthdays")
+    rows= cursor.fetchall()
+    for row in rows:
+       print("bien")
+       print(row)
+
+    ##mi_conexion.commit()
+    ##mi_conexion.close()
+##except Exception as ex:
+    ##print(ex)
+except sqlite3.Error as ex:
+   print("Error occurred while accessing the database:", ex)
+   
+##finally:
+   ## if db:
+      ##  db.close()
 
 
 #HTML
