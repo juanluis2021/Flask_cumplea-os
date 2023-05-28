@@ -1,15 +1,88 @@
 # Flask_cumplea-os
 
-El código comienza importando los módulos necesarios y mostrando la configuración de la aplicación Flask.
 
-A continuación, se crea una conexión a la base de datos SQLite y se obtiene un cursor para ejecutar consultas, puede ser para crear o recorrer tablas.
+##En resumen, el método "POST" se utiliza para agregar nuevas entradas a la base de datos cuando
+##se envía un formulario, mientras que el método "GET" 
+##se utiliza para mostrar las entradas existentes en la base de datos cuando se accede a la ruta inicial.
 
-El decorador @app.route("/") se utiliza para asociar la función index() a la ruta inicial ("/") de la aplicación. Esta maneja función tanto las solicitudes GET como las POST a esta ruta.
+import sqlite3
+import os
+from flask import Flask, flash, jsonify, redirect, render_template, request, session
 
-Si se recibe una solicitud POST, los datos del formulario se extraen utilizando request.form.get() y se insertan en la tabla "birthdays" de la base de datos utilizando una consulta SQL INSERT. Luego, la conexión se guarda usando conn.commit() y se redirige al usuario nuevamente a la ruta inicial.
+app = Flask(__name__)
+app.config["TEMPLATES_AUTO_RELOAD"] = True
 
-Si se recibe una solicitud GET, se verifica si se cumple un parámetro de consulta "id". Si es así, se ejecuta una consulta SQL DELETE para eliminar el cumpleaños correspondiente al ID proporcionado. Luego, se ejecuta una consulta SQL SELECT para obtener todas las entradas de la tabla "birthdays" y se pasa a la plantilla HTML "index.html" para mostrar los cumpleaños existentes.
+from cs50 import SQL
+import sqlite3
+from flask import Flask, redirect, render_template, request
 
-La plantilla HTML "index.html" muestra un formulario con campos para agregar nuevos cumpleaños. Al enviar el formulario, se realiza una solicitud POST a la ruta inicial ("/"). También hay otro formulario con un campo de entrada de ID y un botón para borrar un registro existente. Este formulario realiza una solicitud GET a la ruta inicial ("/") con un parámetro de consulta "id" para indicar qué registro debe ser borrado.
+app = Flask(__name__)
 
-La base de datos usada SQLite,que pudo ir insertando y borrando registros de la tabla cumplaños,importando la libreria SQLlite y comunicándola con nuestro proyecto Flask.
+try:
+    conn = sqlite3.connect("env/birthdays/birthdays")
+    db = conn.cursor()
+    print("Conexión exitosa a la base de datos")
+except sqlite3.Error as e:
+    print("Error al conectar a la base de datos:", str(e))
+
+@app.route("/", methods=["GET", "POST"])
+def index():
+    if request.method == "POST":
+        id = request.form.get("id")
+        name = request.form.get("name")
+        month = request.form.get("month")
+        day = request.form.get("day")
+
+        db.execute("INSERT INTO birthdays (id, name, month, day) VALUES (?, ?, ?, ?)",  (id, name, month, day))
+                 
+        conn.commit()
+
+        return redirect("/")
+
+    elif request.method == "GET":
+        id = request.args.get("id")
+        if id:
+            db.execute("DELETE FROM birthdays WHERE id = ?", (id,))
+            conn.commit()
+
+        entries = db.execute("SELECT * FROM birthdays").fetchall()
+        return render_template("index.html", entries=entries)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+#HTML
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cumpleaños</title>
+</head>
+<body>
+    
+    <form action="/" method="POST">
+        <input name="id" placeholder="id" type="number" min="1" max="2000">
+        <input name="name" placeholder="Name" type="text">
+        <input name="month" placeholder="Month" type="number" min="1" max="12">
+        <input name="day" placeholder="Day" type="number" min="1" max="31">
+        <input type="submit" value="Add Birthday">
+    </form>
+
+
+    <form action="/" method="GET">
+        <input type="hidden" name="_method" value="DELETE">
+        <input name="id" placeholder="id" type="number" min="1" max="2000">
+        <input type="submit" value="Borrar registro ">
+    </form>
+
+
+</body>
+
+
+
+
+3
